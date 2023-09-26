@@ -1,3 +1,5 @@
+import time
+import requests
 
 
 
@@ -48,11 +50,12 @@ class Dish():
 #   has a function show me my order; 
 # #returns a list of added items, there price and the total price 
 #  
-#   has a function make order 
-#    this will change a bool value order_made from false to true and will recored the time of  
-#   the order
+#   has function clear order
 #
-#   class order tracker will contain a log of previous orders and when they where made
+#   has a function place oder this will 
+#    
+#
+#   
 #   
 #
 # 
@@ -71,8 +74,7 @@ my_menu = [roast_chicken, burger, fries, onion_rings, milk_shake]
 class Order():
     def __init__(self, menu):
         self.menu = menu
-        self.order = []
-        self.order_placed = False    
+        self.order = [] 
     def show_menu(self):
         res = ""
         for i in self.menu:
@@ -94,7 +96,6 @@ class Order():
         return total                
     def show_my_order(self):
         check = []
-        result = {}
         total_cost = self.grand_total()
         string_cost = "{:.2f}".format(total_cost)
         res = "your order: "
@@ -111,15 +112,58 @@ class Order():
                 res += "{:.2f}".format(item_cost)
                 res += " "
         return res + f'total cost: {string_cost} would you like to add anything else?'
-    
-
-                
+    def remove_dish(self, dish, amount=1):
+            for i in range(0, amount):
+                self.order.remove(dish)
+    def clear_order(self):
+        self.order = []            
         
         
 
 
+class Order_tracker():
+    def __init__(self, request=None):
+        self.my_order = []
+        self.total_for_order = 0
+        self.order_time = []
+        self.receipts = {}
+        self.request = request
+    def make_order(self, order):
+        self.my_order = order.order
+        self.total_for_order = order.grand_total()
+        self._get_order_time()
+    def show_order(self):
+        res = f'your most recent order was made at {self.order_time[1]} on {self.order_time[0]}: order: '
+        total_cost = self.total_for_order
+        string_cost = "{:.2f}".format(total_cost)
+        check = []
+        for i in self.my_order:
+            if i not in check:
+                check.append(i)
+                num_of_dish = self.my_order.count(i)
+                item_cost = num_of_dish * i.price
+                name_of_dish = i.name
+                res += str(num_of_dish) 
+                res += " "
+                res += name_of_dish
+                res += ": "
+                res += "{:.2f}".format(item_cost)
+                res += " "
+        return res + f'total cost: {string_cost}'
+    def _get_order_time(self):
+        response = self.request.get("https://worldtimeapi.org/api/ip")
+        json = response.json()
+        time = json["datetime"]
+        order_date = time[:10]
+        order_time = time[11:19]
+        self.order_time.extend([order_date, order_time])
+        
 
 
+
+
+
+        
 
 
 
