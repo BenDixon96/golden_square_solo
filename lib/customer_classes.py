@@ -131,18 +131,21 @@ class Order_tracker():
         self.order_time = []
         self.receipts = {}
         self.request = request
-        self.conformation = []
         self.eta = 0
+        self.oustanding_order = False
     def make_order(self, order, deliverytime=30):
-        if self.my_order == []:
-            self.my_order = order.order
-            self.total_for_order = order.grand_total()
-            self._get_order_time()
-            self._get_eta()
-            return f'thank you your order it will arrive by {str(self.eta)[0:5]}'
-        
-
-        
+        if self.my_order != []:
+            self.receipts[f'order made on {self.order_time[0]} was made at {self.order_time[1]}'] = [self.show_order()[63:-47], f'should arrive at {self.eta}'[:-3]]
+            self.order_time = []
+            self.eta = 0
+            self.my_order = []
+            
+        self.my_order = order.order
+        self.total_for_order = order.grand_total()
+        self._get_order_time()
+        self._get_eta(deliverytime)
+        self.oustanding_order = False
+        return f'thank you your order it will arrive by {str(self.eta)[0:5]}' 
     def show_order(self):
         res = f'your most recent order was made at {self.order_time[1]} on {self.order_time[0]}: order: '
         total_cost = self.total_for_order
@@ -168,7 +171,7 @@ class Order_tracker():
         order_date = time[:10]
         order_time = time[11:16]
         self.order_time.extend([order_date, order_time])
-    def _get_eta(self, deliverytime=30):
+    def _get_eta(self, deliverytime):
         import datetime
         time_change = datetime.timedelta(minutes=deliverytime)
         mins = self.order_time[1]
@@ -176,7 +179,17 @@ class Order_tracker():
         time_of_ord = datetime.strptime(mins, "%H:%M")
         eta = time_of_ord + time_change
         self.eta = eta.time()
-    
+    def show_receipts(self):
+        res = ''
+        for i, x in self.receipts.items():
+            res += i 
+            res += ": "
+            res += x[0]
+            res += ' '
+            res += x[1]
+            
+
+        return res    
 
 
 

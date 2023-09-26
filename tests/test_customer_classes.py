@@ -134,7 +134,7 @@ def test_dont_make_an_order_when_one_is_outstanding():
     response_mock.json.return_value = {"datetime":"2023-09-26T11:09:54.412327+01:00"}
     my_order_tracker.make_order(my_order)
     my_order_tracker.make_order(another_order)
-    assert my_order_tracker.my_order == [roast_chicken, roast_chicken, burger]
+    assert my_order_tracker.my_order == [burger]
 
 def test_eta():
     
@@ -147,7 +147,7 @@ def test_eta():
     my_order.add_dish(roast_chicken, 2)
     my_order.add_dish(burger)
     my_order_tracker.make_order(my_order)
-    my_order_tracker._get_eta()
+    
 
     assert str(my_order_tracker.eta) == '11:39:00'
 
@@ -161,8 +161,52 @@ def test_order_confermed():
     my_order.add_dish(roast_chicken, 2)
     my_order.add_dish(burger)
     assert my_order_tracker.make_order(my_order) == "thank you your order it will arrive by 11:39"
+
+def test_receipts():
+    my_order = Order(menu)
+    my_order.add_dish(roast_chicken, 2)
+    my_order.add_dish(burger)
+    another_order = Order(menu)
+    another_order.add_dish(burger)
+    requester_mock = Mock()
+    response_mock = Mock()
+    my_order_tracker = Order_tracker(requester_mock)
+    requester_mock.get.return_value = response_mock
+    response_mock.json.return_value = {"datetime":"2023-09-26T11:09:54.412327+01:00"}
+    my_order_tracker.make_order(my_order)
+    my_order_tracker.make_order(another_order)
+    assert my_order_tracker.my_order == [burger]
     
+def test_recipt():
+    my_order = Order(menu)
+    my_order.add_dish(roast_chicken, 2)
+    my_order.add_dish(burger)
+    another_order = Order(menu)
+    another_order.add_dish(burger)
+    requester_mock = Mock()
+    response_mock = Mock()
+    my_order_tracker = Order_tracker(requester_mock)
+    requester_mock.get.return_value = response_mock
+    response_mock.json.return_value = {"datetime":"2023-09-26T11:09:54.412327+01:00"}
+    my_order_tracker.make_order(my_order)
+    my_order_tracker.make_order(another_order)
+    assert my_order_tracker.receipts == {'order made on 2023-09-26 was made at 11:09':['2 roast chicken: 23.00 1 burger: 10.50 total cost: 33.50', 'should arrive at 11:39']}
 
 
-     
+def test_show_my_recipts():
+    my_order = Order(menu)
+    my_order.add_dish(roast_chicken, 2)
+    my_order.add_dish(burger)
+    another_order = Order(menu)
+    another_order.add_dish(burger)
+    requester_mock = Mock()
+    response_mock = Mock()
+    my_order_tracker = Order_tracker(requester_mock)
+    requester_mock.get.return_value = response_mock
+    response_mock.json.return_value = {"datetime":"2023-09-26T11:09:54.412327+01:00"}
+    my_order_tracker.make_order(my_order)
+    my_order_tracker.make_order(another_order)
+    assert my_order_tracker.show_receipts() == 'order made on 2023-09-26 was made at 11:09: 2 roast chicken: 23.00 1 burger: 10.50 total cost: 33.50 should arrive at 11:39'
+
+
 
