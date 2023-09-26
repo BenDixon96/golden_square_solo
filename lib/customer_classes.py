@@ -1,9 +1,11 @@
 import time
 import requests
 
+from datetime import datetime
 
-
-
+import datetime
+a = datetime.datetime(100,1,1,11,34,59)
+from datetime import datetime
 #As a customer
 #  So that I can check if I want to order something
 #  
@@ -125,13 +127,22 @@ class Order_tracker():
     def __init__(self, request=None):
         self.my_order = []
         self.total_for_order = 0
+        eta = 0
         self.order_time = []
         self.receipts = {}
         self.request = request
-    def make_order(self, order):
-        self.my_order = order.order
-        self.total_for_order = order.grand_total()
-        self._get_order_time()
+        self.conformation = []
+        self.eta = 0
+    def make_order(self, order, deliverytime=30):
+        if self.my_order == []:
+            self.my_order = order.order
+            self.total_for_order = order.grand_total()
+            self._get_order_time()
+            self._get_eta()
+            return f'thank you your order it will arrive by {str(self.eta)[0:5]}'
+        
+
+        
     def show_order(self):
         res = f'your most recent order was made at {self.order_time[1]} on {self.order_time[0]}: order: '
         total_cost = self.total_for_order
@@ -149,15 +160,25 @@ class Order_tracker():
                 res += ": "
                 res += "{:.2f}".format(item_cost)
                 res += " "
-        return res + f'total cost: {string_cost}'
+        return res + f'total cost: {string_cost} thank you your order it should arrive by {str(self.eta)[0:5]}'
     def _get_order_time(self):
         response = self.request.get("https://worldtimeapi.org/api/ip")
         json = response.json()
         time = json["datetime"]
         order_date = time[:10]
-        order_time = time[11:19]
+        order_time = time[11:16]
         self.order_time.extend([order_date, order_time])
-        
+    def _get_eta(self, deliverytime=30):
+        import datetime
+        time_change = datetime.timedelta(minutes=deliverytime)
+        mins = self.order_time[1]
+        from datetime import datetime
+        time_of_ord = datetime.strptime(mins, "%H:%M")
+        eta = time_of_ord + time_change
+        self.eta = eta.time()
+    
+
+
 
 
 
